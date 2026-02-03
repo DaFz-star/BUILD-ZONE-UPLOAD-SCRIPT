@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUILD ZONE Library | By DaFz</title>
+    <style>
+        :root { --main: #00a8ff; --bg: #0b141a; --card: #1c272d; --input: #2a3942; --danger: #ff4d4d; --accent: #00ff99; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #e9edef; margin: 0; padding: 20px; }
+        .container { max-width: 850px; margin: 0 auto; }
+        
+        header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid var(--card); padding-bottom: 20px; }
+        header h1 { color: var(--main); margin: 0; font-size: 32px; letter-spacing: 3px; font-weight: 800; }
+        header p { color: #667781; font-size: 13px; margin-top: 5px; text-transform: uppercase; }
+
+        /* Form Pelaporan/Sharing */
+        .share-box { background: var(--card); padding: 25px; border-radius: 15px; margin-bottom: 40px; border: 1px solid #3b4a54; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        label { display: block; margin-bottom: 5px; font-size: 12px; color: var(--main); font-weight: bold; text-transform: uppercase; }
+        
+        input, textarea { width: 100%; padding: 12px; background: var(--input); border: 1px solid #3b4a54; border-radius: 8px; color: white; margin-bottom: 15px; outline: none; box-sizing: border-box; transition: 0.3s; }
+        input:focus, textarea:focus { border-color: var(--main); background: #32444f; }
+        
+        .full-width { grid-column: span 2; }
+        
+        .btn-post { width: 100%; padding: 16px; background: var(--main); border: none; border-radius: 8px; color: white; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 16px; text-transform: uppercase; }
+        .btn-post:hover { background: #0086cc; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 168, 255, 0.4); }
+
+        /* Script Card */
+        .script-card { background: var(--card); border-radius: 15px; padding: 25px; margin-bottom: 25px; border: 1px solid #3b4a54; position: relative; transition: 0.3s; }
+        .script-card:hover { border-color: var(--main); }
+        .script-title { color: var(--main); font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+        .script-meta { font-size: 11px; color: #aebac1; margin-bottom: 15px; display: flex; gap: 15px; }
+        
+        .code-display { background: #0d1117; padding: 15px; border-radius: 10px; font-family: 'Consolas', monospace; font-size: 13px; color: var(--accent); overflow-x: auto; max-height: 200px; border: 1px solid #000; line-height: 1.5; }
+        
+        .action-btns { display: flex; gap: 12px; margin-top: 20px; }
+        .btn-copy { background: transparent; border: 2px solid var(--main); color: var(--main); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; flex: 1; transition: 0.2s; }
+        .btn-copy:hover { background: var(--main); color: white; }
+        
+        .btn-delete { background: transparent; border: 2px solid var(--danger); color: var(--danger); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.2s; }
+        .btn-delete:hover { background: var(--danger); color: white; }
+
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>BUILD ZONE LIBRARY 🛠️</h1>
+        <p>Bluesh Hub | By DaFz V1 • Central Script Database</p>
+    </header>
+
+    <div class="share-box">
+        <div class="form-grid">
+            <div>
+                <label>👤 Creator Name</label>
+                <input type="text" id="authorName" placeholder="Nama Anda">
+            </div>
+            <div>
+                <label>🔑 Delete Password</label>
+                <input type="password" id="scriptPass" placeholder="Password Khusus Script Ini">
+            </div>
+            <div class="full-width">
+                <label>📜 Script Name</label>
+                <input type="text" id="scriptTitle" placeholder="Contoh: Blox Fruits Hub V3">
+            </div>
+            <div class="full-width">
+                <label>💻 Source Code (LUA)</label>
+                <textarea id="scriptContent" rows="8" placeholder="Tempel script Anda di sini..."></textarea>
+            </div>
+        </div>
+        <button class="btn-post" onclick="postScript()">PUBLISH TO DATABASE 🚀</button>
+    </div>
+
+    <div id="scriptLibrary"></div>
+</div>
+
+<script>
+    const MASTER_ADMIN_PASS = "AdminPanels";
+
+    window.onload = function() { displayScripts(); };
+
+    function postScript() {
+        const author = document.getElementById('authorName').value;
+        const title = document.getElementById('scriptTitle').value;
+        const pass = document.getElementById('scriptPass').value;
+        const code = document.getElementById('scriptContent').value;
+
+        if(!author || !title || !pass || !code) return alert("⚠️ Mohon lengkapi semua kolom!");
+
+        const newScript = {
+            id: Date.now(),
+            author: author,
+            title: title,
+            password: pass,
+            code: code,
+            date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+        };
+
+        let scripts = JSON.parse(localStorage.getItem('buildzone_data')) || [];
+        scripts.unshift(newScript);
+        localStorage.setItem('buildzone_data', JSON.stringify(scripts));
+
+        document.getElementById('authorName').value = '';
+        document.getElementById('scriptTitle').value = '';
+        document.getElementById('scriptPass').value = '';
+        document.getElementById('scriptContent').value = '';
+        
+        displayScripts();
+        alert("✅ Script berhasil diunggah ke BUILD ZONE!");
+    }
+
+    function displayScripts() {
+        const library = document.getElementById('scriptLibrary');
+        const scripts = JSON.parse(localStorage.getItem('buildzone_data')) || [];
+        library.innerHTML = '';
+
+        if(scripts.length === 0) {
+            library.innerHTML = '<div style="text-align:center; padding:50px; color:#555;"><h3>Belum Ada Data Script</h3><p>Jadilah yang pertama berkontribusi di BUILD ZONE.</p></div>';
+            return;
+        }
+
+        scripts.forEach(s => {
+            library.innerHTML += `
+                <div class="script-card">
+                    <div class="script-title">${s.title}</div>
+                    <div class="script-meta">
+                        <span>👤 ${s.author}</span>
+                        <span>📅 ${s.date}</span>
+                    </div>
+                    <div class="code-display">
+                        <pre><code>${escapeHtml(s.code)}</code></pre>
+                    </div>
+                    <div class="action-btns">
+                        <button class="btn-copy" onclick="copyCode('${encodeURIComponent(s.code)}')">COPY SCRIPT 📋</button>
+                        <button class="btn-delete" onclick="deleteScript(${s.id})">DELETE 🗑️</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function copyCode(code) {
+        navigator.clipboard.writeText(decodeURIComponent(code));
+        alert("📋 Script berhasil disalin!");
+    }
+
+    function deleteScript(id) {
+        let scripts = JSON.parse(localStorage.getItem('buildzone_data')) || [];
+        const scriptData = scripts.find(s => s.id === id);
+        if (!scriptData) return;
+
+        const inputPass = prompt("VERIFIKASI: Masukkan Password Creator atau Master Admin:");
+        
+        if (inputPass === scriptData.password || inputPass === MASTER_ADMIN_PASS) {
+            scripts = scripts.filter(s => s.id !== id);
+            localStorage.setItem('buildzone_data', JSON.stringify(scripts));
+            displayScripts();
+            alert("🗑️ Berhasil dihapus dari Library.");
+        } else if (inputPass !== null) {
+            alert("❌ Akses Ditolak! Password tidak cocok.");
+        }
+    }
+
+    function escapeHtml(text) {
+        return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+</script>
+
+</body>
+</html>
